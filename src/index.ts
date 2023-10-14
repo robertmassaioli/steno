@@ -4,30 +4,55 @@ import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { getStenoConfig, readPloverConfig } from './loaders';
-import { DictionaryConfig, StenoConfig, isValidationErrors } from './data';
+import { DictionaryConfig, PloverConfig, StenoConfig, isValidationErrors } from './data';
+
+enum ErrorCodes {
+  StenoConfigValidationError = 1,
+  PloverConfigPathError,
+  PloverConfigReadError,
+};
+
+async function getStenoConfigOrPrintErrors(): Promise<StenoConfig> {
+  let stenoConfig = await getStenoConfig(process.cwd());
+
+  if (isValidationErrors(stenoConfig)) {
+    console.error('The following validation errors were found while finding and parsing the steno configuration:');
+    stenoConfig.validationErrors.forEach(error => {
+      console.error(` - ${error}`);
+    })
+    process.exit(ErrorCodes.StenoConfigValidationError);
+  }
+
+  return stenoConfig;
+}
+
+async function readPloverConfigOrPrintErrors(stenoConfig: StenoConfig): Promise<PloverConfig> {
+  const ploverConfigPath = path.join(stenoConfig.ploverAssetsDir, 'plover.cfg');
+    if (!fs.existsSync(ploverConfigPath)) {
+      console.error('The plover.cfg file does not exist in the specified directory.');
+      process.exit(ErrorCodes.PloverConfigPathError);
+    }
+
+    const ploverConfig = await readPloverConfig(ploverConfigPath);
+
+    if (isValidationErrors(ploverConfig)) {
+      console.error('The following validation errors were found while finding and parsing the plover configuration:');
+      ploverConfig.validationErrors.forEach(error => {
+        console.error(` - ${error}`);
+      })
+      process.exit(ErrorCodes.StenoConfigValidationError);
+    }
+
+    return ploverConfig;
+}
 
 program
   .command('build')
   .description('Merge all JSON steno dictionaries in your Plover assets direcotry into one file.')
   .action(async () => {
     try {
-      let stenoConfig = await getStenoConfig(process.cwd());
-
-      if (isValidationErrors(stenoConfig)) {
-        console.error('The following validation errors were found while finding and parsing the steno configuration:');
-        stenoConfig.validationErrors.forEach(error => {
-          console.error(` - ${error}`);
-        })
-        process.exit(1);
-      }
-
-      const ploverConfigPath = path.join(stenoConfig.ploverAssetsDir, 'plover.cfg');
-      if (!fs.existsSync(ploverConfigPath)) {
-        console.error('The plover.cfg file does not exist in the specified directory.');
-        return;
-      }
-
-      const ploverConfig = await readPloverConfig(ploverConfigPath);
+      const stenoConfig = await getStenoConfigOrPrintErrors();
+      const ploverConfig = await readPloverConfigOrPrintErrors(stenoConfig);
       const mergedDictionary = await mergeDictionaries(stenoConfig, ploverConfig.dictionaries);
 
       const outputFilePath = path.join(process.cwd(), 'dictionary.merged.json');
@@ -43,6 +68,9 @@ program
   .command('info')
   .description('Load all of your dictionaries and give statistics on the dictionaries individually and as a whole.')
   .action(async () => {
+    const stenoConfig = await getStenoConfigOrPrintErrors();
+    const ploverConfig = await readPloverConfigOrPrintErrors(stenoConfig);
+
 
   });
 

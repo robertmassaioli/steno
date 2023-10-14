@@ -10,7 +10,11 @@ export function isValidationErrors<T>(t: T | ValidationErrors): t is ValidationE
   return t !== null && typeof t === 'object' && 'validationErrors' in t;
 }
 
-export interface DictionaryConfig {
+export type PloverConfig = {
+  dictionaries: Array<DictionaryConfig>;
+};
+
+export type DictionaryConfig = {
   enabled: boolean;
   path: string;
-}
+};

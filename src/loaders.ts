@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as ini from 'ini';
 import * as path from 'path';
-import { DictionaryConfig, StenoConfig, ValidationErrors } from './data';
+import { DictionaryConfig, PloverConfig, StenoConfig, ValidationErrors } from './data';
 
 export async function getStenoConfig(cwd: string): Promise<StenoConfig | ValidationErrors> {
   const stenoConfigPath = await findStenoConfigFile(cwd);
@@ -41,16 +41,20 @@ async function readStenoConfig(configPath: string): Promise<StenoConfig> {
   return JSON.parse(configContent);
 }
 
-export async function readPloverConfig(ploverConfigPath: string): Promise<{ dictionaries: DictionaryConfig[] }> {
+export async function readPloverConfig(ploverConfigPath: string): Promise<PloverConfig | ValidationErrors> {
   const ploverConfigContent = await fse.readFile(ploverConfigPath, 'utf-8');
   const ploverConfigData = ini.parse(ploverConfigContent);
 
   // Assuming the section you're interested in is "[System: English Stenotype]"
-  const englishStenotype = ploverConfigData['System: English Stenotype'];
+  const section = 'System: English Stenotype';
+  const englishStenotype = ploverConfigData[section];
 
   if (!englishStenotype || !englishStenotype.dictionaries) {
-    console.error('Invalid plover.cfg format or missing "dictionaries" in [Gemini PR] section.');
-    return { dictionaries: [] };
+    return {
+      validationErrors: [
+        `Invalid plover.cfg format or missing "dictionaries" in [${section}] section.`
+      ]
+    };
   }
 
   const dictionaries = JSON.parse(englishStenotype.dictionaries);
