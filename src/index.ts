@@ -40,7 +40,7 @@ async function readPloverConfigOrPrintErrors(stenoConfig: StenoConfig): Promise<
       ploverConfig.validationErrors.forEach(error => {
         console.error(` - ${error}`);
       })
-      process.exit(ErrorCodes.StenoConfigValidationError);
+      process.exit(ErrorCodes.PloverConfigReadError);
     }
 
     return ploverConfig;
@@ -71,6 +71,14 @@ program
     const stenoConfig = await getStenoConfigOrPrintErrors();
     const ploverConfig = await readPloverConfigOrPrintErrors(stenoConfig);
 
+    console.log(`## Plover Configuration`);
+    console.log('');
+
+    const { dictionaries } = ploverConfig;
+    console.log(`You have ${dictionaries.length} dictionaries configured in Plover, in the following order:`);
+    dictionaries.forEach(d => {
+      console.log(` - ${d.path} ${d.enabled ? '' : ' (disabled)'}`);
+    });
 
   });
 
@@ -96,19 +104,18 @@ program
 
 program.parse(process.argv);
 
+function isJsonDictionary(dictionary: DictionaryConfig): boolean {
+  return dictionary.path.endsWith('.json');
+}
 
 async function mergeDictionaries(stenoConfig: StenoConfig, dictionaries: DictionaryConfig[]): Promise<object> {
+  const enabledJsonDictionaries = dictionaries.filter(d => d.enabled).filter(isJsonDictionary);
   let mergedDictionary = {};
 
-  for (const dictionary of dictionaries) {
-    if (dictionary.enabled) {
-      const dictionaryPath = path.join(stenoConfig.ploverAssetsDir, dictionary.path);
-
-      if (dictionaryPath.endsWith('.json')) {
-        const dictionaryContent = await fse.readJson(dictionaryPath);
-        mergedDictionary = { ...dictionaryContent, ...mergedDictionary };
-      }
-    }
+  for (const dictionary of enabledJsonDictionaries) {
+    const dictionaryPath = path.join(stenoConfig.ploverAssetsDir, dictionary.path);
+    const dictionaryContent = await fse.readJson(dictionaryPath);
+    mergedDictionary = { ...dictionaryContent, ...mergedDictionary };
   }
 
   return mergedDictionary;
