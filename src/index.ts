@@ -123,7 +123,7 @@ program
   .command('convert')
   .description('Given a file, convert the contents of that file to the stenography representation of that file with the given dictionaries.')
   .action(async () => {
-
+    console.log("Not yet implemented...");
   });
 
 program
@@ -135,6 +135,7 @@ program
     // be a separate command.
 
     // We could also evaluate the dictionary against the list of most popular words and phrases
+    console.log("Not yet implemented...");
   });
 
 // Command that evaluates where the most popular word or phrase is not the one that got the asterix
