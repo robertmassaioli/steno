@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as ini from 'ini';
 import * as path from 'path';
-import { DictionaryConfig, PloverConfig, StenoConfig, ValidationErrors } from './data';
+import { DictionaryConfig, LoadedDictionary, PloverConfig, StenoConfig, StenoDictionary, ValidationErrors } from './data';
 
 export async function getStenoConfig(cwd: string): Promise<StenoConfig | ValidationErrors> {
   const stenoConfigPath = await findStenoConfigFile(cwd);
@@ -60,4 +60,14 @@ export async function readPloverConfig(ploverConfigPath: string): Promise<Plover
   const dictionaries = JSON.parse(englishStenotype.dictionaries);
 
   return { dictionaries };
+}
+
+export async function loadDictionary(stenoConfig: StenoConfig, config: DictionaryConfig): Promise<LoadedDictionary> {
+  const dictionaryPath = path.join(stenoConfig.ploverAssetsDir, config.path);
+  const dictionary = await fse.readJson(dictionaryPath);
+  return { config, dictionary };
+}
+
+export async function loadDictionaries(stenoConfig: StenoConfig, dictionary: Array<DictionaryConfig>): Promise<Array<LoadedDictionary>> {
+  return Promise.all(dictionary.map(d => loadDictionary(stenoConfig, d)));
 }

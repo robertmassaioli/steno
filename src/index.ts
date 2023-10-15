@@ -3,8 +3,8 @@ import { program } from 'commander';
 import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as path from 'path';
-import { getStenoConfig, readPloverConfig } from './loaders';
-import { DictionaryConfig, PloverConfig, StenoConfig, isValidationErrors } from './data';
+import { getStenoConfig, loadDictionaries, loadDictionary, readPloverConfig } from './loaders';
+import { DictionaryConfig, DictionaryStats, LoadedDictionary, PloverConfig, StenoConfig, StenoDictionary, isValidationErrors } from './data';
 
 enum ErrorCodes {
   StenoConfigValidationError = 1,
@@ -79,8 +79,45 @@ program
     dictionaries.forEach(d => {
       console.log(` - ${d.path} ${d.enabled ? '' : ' (disabled)'}`);
     });
+    console.log('');
+
+    const enabledJsonDictionaries = getEnabledJsonDictionaries(dictionaries);
+    const loadedDictionaries = await loadDictionaries(stenoConfig, enabledJsonDictionaries);
+
+    // For each dictionary, how many unique outputs? How many suffixes and prefixes? What is the distribution?
+    console.log('## Individual JSON Dictionary Statistics');
+    console.log();
+    loadedDictionaries.forEach(d => {
+      console.log(` - ${d.config.path}`);
+      const stats = calculateDictionaryStats(d);
+      const uniqueToTotal = stats.uniqueWordCount / stats.definedEntries * 100;
+      console.log(`   - Unique Entries: ${stats.uniqueWordCount} / ${stats.definedEntries} (${uniqueToTotal.toFixed(2)}%)`);
+      console.log(`   - Entries by Stroke Count:`);
+      Object.keys(stats.definitionsByStrokeCount).sort((a, b) => parseInt(a) - parseInt(b)).forEach(strokes => {
+        console.log(`     - ${strokes}: ${stats.definitionsByStrokeCount[parseInt(strokes)]} entries`);
+      })
+    });
 
   });
+
+function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
+  const { dictionary } = d;
+
+  const uniqueWords = new Set<string>(Object.values(dictionary));
+
+  const allKeys = Object.keys(dictionary);
+  const definitionsByStrokeCount: { [strokes: number]: number } = {};
+  allKeys.forEach(key => {
+    const strokes = key.split('/').length;
+    definitionsByStrokeCount[strokes] = (definitionsByStrokeCount[strokes] || 0) + 1;
+  });
+
+  return {
+    definedEntries: allKeys.length,
+    uniqueWordCount: uniqueWords.size,
+    definitionsByStrokeCount
+  }
+}
 
 program
   .command('convert')
@@ -108,17 +145,19 @@ function isJsonDictionary(dictionary: DictionaryConfig): boolean {
   return dictionary.path.endsWith('.json');
 }
 
-async function mergeDictionaries(stenoConfig: StenoConfig, dictionaries: DictionaryConfig[]): Promise<object> {
-  const enabledJsonDictionaries = dictionaries.filter(d => d.enabled).filter(isJsonDictionary);
-  let mergedDictionary = {};
+function getEnabledJsonDictionaries(dictionaries: Array<DictionaryConfig>): Array<DictionaryConfig> {
+  return dictionaries.filter(d => d.enabled).filter(isJsonDictionary);
+}
 
-  for (const dictionary of enabledJsonDictionaries) {
-    const dictionaryPath = path.join(stenoConfig.ploverAssetsDir, dictionary.path);
-    const dictionaryContent = await fse.readJson(dictionaryPath);
-    mergedDictionary = { ...dictionaryContent, ...mergedDictionary };
-  }
+async function mergeDictionaries(stenoConfig: StenoConfig, dictionaries: DictionaryConfig[]): Promise<StenoDictionary> {
+  const enabledJsonDictionaries = getEnabledJsonDictionaries(dictionaries);
 
-  return mergedDictionary;
+  const loadedDictionaries = await loadDictionaries(stenoConfig, enabledJsonDictionaries);
+
+  return loadedDictionaries.reduce((acc, loadedDictionary) => ({
+    ...loadedDictionary.dictionary,
+    ...acc
+  }), {});
 }
 
 
