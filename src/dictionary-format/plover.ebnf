@@ -1,5 +1,5 @@
-output ::= macro | segment+
-segment ::= metaCommand | resetFormatting | verbatim
+output ::= macro | ([\s]* atom [\s]*)+
+atom ::= metaCommand | resetFormatting | verbatim
 
 macro ::= "=" macroName (":" macroArgument)?
 macroName ::= (letter | "_")+
@@ -62,8 +62,10 @@ attach ::= "^"
 attachVerbatim ::= (escapeSequence | attachVerbatimSingle)+
 attachVerbatimSingle ::= [^\{\}\^]
 
-verbatim ::= (escapeSequence | verbatimSingle)+
-verbatimSingle ::= [^\{\}]
+verbatim ::= (escapableSingle escapableSingleWS* escapableSingle) | escapableSingle
+escapableSingleWS ::= escapeSequence | verbatimSingle | [\s]
+escapableSingle ::= escapeSequence | verbatimSingle
+verbatimSingle ::= [^\s\{\}]
 
 escapeSequence ::= backSlash escapableCharacter
 escapableCharacter ::= [#x00-#x7F]

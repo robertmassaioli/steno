@@ -1,5 +1,5 @@
 import {describe, expect, it } from '@jest/globals';
-import { getParser, printAST } from './lexer';
+import { getParser, printAST, toASTString } from './lexer';
 import { IToken } from 'ebnf';
 import { isPresent } from 'ts-is-present';
 
@@ -68,11 +68,12 @@ function expectTokenMatchHelper({e, a, currentPath}: TokenMatchState) {
 }
 
 export function generateTest(testName: string, input: string, expected: TokenMatch): void {
-  describe(testName, () => {
+  describe(`${testName}: ${input}`, () => {
     const ast = toAST(input);
 
     if (isPresent(ast)) {
-      printAST(ast);
+      const astString = toASTString(ast);
+      console.log(`${testName} AST:\n\n${astString}`);
       it('should parse successfully', () => {
         assertParse(ast, input);
       });
