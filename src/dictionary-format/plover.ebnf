@@ -8,7 +8,7 @@ macroArgument ::= [.]*
 resetFormatting ::= "{}"
 
 metaCommand ::= "{" metaCommandType "}"
-metaCommandType ::= caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | legacyMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | carryCapitalisationMetaCommand | attachMetaCommand
+metaCommandType ::= attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | legacyMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | carryCapitalisationMetaCommand
 
 legacyMetaCommand ::= retroDeleteSpace | retroInsertSpace | repeatLastStroke | retroToggleAsterisk
 retroToggleAsterisk ::= "*"
