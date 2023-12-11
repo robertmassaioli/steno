@@ -55,13 +55,15 @@ glueMetaCommand ::= "&" verbatim*
 carryCapitalisationMetaCommand ::= attach "~|" verbatim* attach?
 
 attachMetaCommand ::= attachStart | attachEnd
-attachStart ::= attach verbatim* attach?
-attachEnd ::= verbatim attach
-attachCenter ::= verbatim
+attachStart ::= attach attachVerbatim* attach?
+attachEnd ::= attachVerbatim attach
 attach ::= "^"
 
-verbatim ::= (escapeSequence | verbatimSingle | space)+
-verbatimSingle ::= [^\ \{\}\^]
+attachVerbatim ::= (escapeSequence | attachVerbatimSingle)+
+attachVerbatimSingle ::= [^\{\}\^]
+
+verbatim ::= (escapeSequence | verbatimSingle)+
+verbatimSingle ::= [^\{\}]
 
 escapeSequence ::= backSlash escapableCharacter
 escapableCharacter ::= [#x00-#x7F]

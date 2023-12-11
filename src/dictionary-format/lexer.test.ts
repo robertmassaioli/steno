@@ -140,7 +140,7 @@ describe("lexer", () => {
       type: 'output',
       children: [
         fastDiveSimple(['segment', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
-        fastDiveSimple(['segment', 'verbatim', 'space']),
+        fastDiveText(['segment', 'verbatim'], ' '),
         fastDiveSimple(['segment', 'metaCommand', 'metaCommandType', 'stopMetaCommand'])
       ]
     });
@@ -163,7 +163,7 @@ describe("lexer", () => {
         type: 'output',
         children: [
           fastDiveSimple(['segment', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart']),
-          fastDiveSimple(['segment', 'verbatim', 'space']),
+          fastDiveText(['segment', 'verbatim'], '^'),
           fastDiveSimple(['segment', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart'])
         ]
       });
