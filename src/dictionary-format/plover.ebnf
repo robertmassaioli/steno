@@ -1,13 +1,13 @@
 output ::= macro | segment+
-segment ::= metaCommand | verbatim
+segment ::= metaCommand | resetFormatting | verbatim
 
 macro ::= "=" macroName (":" macroArgument)?
 macroName ::= (letter | "_")+
 macroArgument ::= [.]*
 
-metaCommand ::= metaCommandStart metaCommandType metaCommandEnd
-metaCommandStart ::= "{"
-metaCommandEnd ::= "}"
+resetFormatting ::= "{}"
+
+metaCommand ::= "{" metaCommandType "}"
 metaCommandType ::= caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | legacyMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | carryCapitalisationMetaCommand | attachMetaCommand
 
 legacyMetaCommand ::= retroDeleteSpace | retroInsertSpace | repeatLastStroke | retroToggleAsterisk
