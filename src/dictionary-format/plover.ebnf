@@ -1,0 +1,76 @@
+output ::= macro | segment+
+segment ::= metaCommand | verbatim
+
+macro ::= "=" macroName (":" macroArgument)?
+macroName ::= (letter | "_")+
+macroArgument ::= [.]*
+
+metaCommand ::= metaCommandStart metaCommandType metaCommandEnd
+metaCommandStart ::= "{"
+metaCommandEnd ::= "}"
+metaCommandType ::= caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | legacyMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | carryCapitalisationMetaCommand | attachMetaCommand
+
+legacyMetaCommand ::= retroDeleteSpace | retroInsertSpace | repeatLastStroke | retroToggleAsterisk
+retroToggleAsterisk ::= "*"
+retroDeleteSpace ::= "*!"
+retroInsertSpace ::= "*?"
+repeatLastStroke ::= "*+"
+
+macroMetaCommand ::= ":" macroMetaCommandName (":" macroMetaCommandArg)?
+macroMetaCommandName ::= letter (letter | digit | "_" | "-")*
+macroMetaCommandArg ::= (letter | digit | special)*
+
+ploverMetaCommand ::= "PLOVER:" ploverMetaCommandName (":" ploverMetaCommandArg)?
+ploverMetaCommandName ::= letter (letter | "_" | "-")*
+ploverMetaCommandArg ::= (letter | digit | special)*
+
+modeMetaCommand ::= "MODE:" outputMode
+outputMode ::= setSpaceOutputMode | simpleOutputMode
+simpleOutputMode ::= "CAPS" | "SNAKE" | "CAMEL" | "LOWER" | "TITLE" | "CLEAR" | "RESET" | "caps" | "snake" | "camel" | "lower" | "title" | "clear" | "reset"
+setSpaceOutputMode ::= ("SET_SPACE" | "set_space") ":" setSpaceTo*
+setSpaceTo ::= letter | digit | special | space
+
+keyComboMetaCommand ::= "#" (singleKeyCombo (" " singleKeyCombo)* )*
+/* TODO get better at parsing key combinations and actually understand them: https://plover.readthedocs.io/en/latest/translation_language.html#keyboard-shortcuts */
+singleKeyCombo ::= [^\ \}]*
+
+commaMetaCommand ::= "," | ":" | ";"
+stopMetaCommand ::= "." | "!" | "?"
+
+caseMetaCommand ::= retroCaseMetaCommand | simpleCaseMetaCommand
+retroCaseMetaCommand ::= "*" simpleCaseMetaCommand
+simpleCaseMetaCommand ::= "-|" | ">" | "<"
+
+wordEndMetaCommand ::= "$"
+
+/* TODO Allow for better parsing of ifNextMatches: see conditional.py in plover source */
+ifNextMatchesMetaCommand ::= "=" (letter | digit | special)+
+
+retroCurrencyMetaCommand ::= "*(" retroCurrencyNotC "c" retroCurrencyNotC ")"
+retroCurrencyNotC ::= notLowerCLetter | digit | special
+notLowerCLetter ::= [abd-zA-Z]
+
+glueMetaCommand ::= "&" verbatim*
+
+carryCapitalisationMetaCommand ::= attach "~|" verbatim* attach?
+
+attachMetaCommand ::= attachStart | attachEnd
+attachStart ::= attach verbatim* attach?
+attachEnd ::= verbatim attach
+attachCenter ::= verbatim
+attach ::= "^"
+
+verbatim ::= (escapeSequence | verbatimSingle | space)+
+verbatimSingle ::= [^\ \{\}\^]
+
+escapeSequence ::= backSlash escapableCharacter
+escapableCharacter ::= [#x00-#x7F]
+
+backSlash ::= #x5C
+
+/* Special does not contain ^ */
+special ::= "." | "-" | "$" | "%" | ":" | "/" | "(" | ")" | "&" | "=>" | "?" | "*" | "÷" | "," | "'"
+letter ::= [a-zA-Z]
+digit ::= [0-9]
+space ::= " "
+newline ::= "\r\n" | "\n"

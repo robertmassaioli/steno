@@ -34,5 +34,5 @@ export type LoadedDictionary = {
 export type DictionaryStats = {
   definedEntries: number;
   uniqueWordCount: number;
-  definitionsByStrokeCount: { [strokes: number]: number };
+  entriesByStrokeCount: { [strokes: number]: number };
 }

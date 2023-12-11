@@ -5,6 +5,9 @@ import * as fse from 'fs-extra';
 import * as path from 'path';
 import { getStenoConfig, loadDictionaries, loadDictionary, readPloverConfig } from './loaders';
 import { DictionaryConfig, DictionaryStats, LoadedDictionary, PloverConfig, StenoConfig, StenoDictionary, isValidationErrors } from './data';
+import { getParser, printAST } from './dictionary-format/lexer';
+import { IToken } from 'ebnf';
+import { formatCharacters, toHexadecimal } from './hexadecimal';
 
 enum ErrorCodes {
   StenoConfigValidationError = 1,
@@ -93,8 +96,8 @@ program
       const uniqueToTotal = stats.uniqueWordCount / stats.definedEntries * 100;
       console.log(`   - Unique Entries: ${stats.uniqueWordCount} / ${stats.definedEntries} (${uniqueToTotal.toFixed(2)}%)`);
       console.log(`   - Entries by Stroke Count:`);
-      Object.keys(stats.definitionsByStrokeCount).sort((a, b) => parseInt(a) - parseInt(b)).forEach(strokes => {
-        console.log(`     - ${strokes}: ${stats.definitionsByStrokeCount[parseInt(strokes)]} entries`);
+      Object.keys(stats.entriesByStrokeCount).sort((a, b) => parseInt(a) - parseInt(b)).forEach(strokes => {
+        console.log(`     - ${strokes}: ${stats.entriesByStrokeCount[parseInt(strokes)]} entries`);
       })
     });
 
@@ -103,20 +106,47 @@ program
 function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
   const { dictionary } = d;
 
-  const uniqueWords = new Set<string>(Object.values(dictionary));
+  const allOutputs = Object.values(dictionary);
+  const uniqueWords = new Set<string>(allOutputs);
 
   const allKeys = Object.keys(dictionary);
-  const definitionsByStrokeCount: { [strokes: number]: number } = {};
+  const entriesByStrokeCount: { [strokes: number]: number } = {};
   allKeys.forEach(key => {
     const strokes = key.split('/').length;
-    definitionsByStrokeCount[strokes] = (definitionsByStrokeCount[strokes] || 0) + 1;
+    entriesByStrokeCount[strokes] = (entriesByStrokeCount[strokes] || 0) + 1;
+  });
+
+  // How many characters are output
+  const dictionaryOutputParser = getParser();
+  Object.entries(dictionary).forEach(([stenoKeys, output]) => {
+    const ast = dictionaryOutputParser.getAST(output, 'output');
+    if (ast !== null && ast.text.length === output.length) {
+      calculateOutputCharacters(ast);
+    } else {
+      console.log(`AST: ${ast === null ? 'null' : ast.text}`);
+      console.error(`Could not parse output or did not parse full output for '${stenoKeys}' in ${d.config.path}: '${output}' (${formatCharacters(output)})`);
+      process.exit(1);
+    }
   });
 
   return {
     definedEntries: allKeys.length,
     uniqueWordCount: uniqueWords.size,
-    definitionsByStrokeCount
+    entriesByStrokeCount
   }
+}
+
+function calculateOutputCharacters(ast: IToken): number {
+  if (ast.type !== 'output') {
+    throw new Error(`Expected AST type was output but got ${ast.type}`);
+  }
+
+  printAST(ast);
+  // const segments = ast.children;
+
+  // console.log(segments);
+
+  return 0;
 }
 
 program
