@@ -51,8 +51,8 @@ wordEndMetaCommand ::= "$"
 
 /* TODO Allow for better parsing of ifNextMatches: see conditional.py in plover source */
 /* {=regex/match_text/no_match_text} */
-ifNextMatchesMetaCommand ::= "=" matchSection
-matchSection ::= anyChar*
+ifNextMatchesMetaCommand ::= "=" matchSection "/" matchSection "/" matchSection
+matchSection ::= (#x5C (#x5C | #x2F) | [^/\{\}\\])*
 
 retroCurrencyMetaCommand ::= "*(" retroCurrencyNotC "c" retroCurrencyNotC ")"
 retroCurrencyNotC ::= notLowerCLetter | digit | special

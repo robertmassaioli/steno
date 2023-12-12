@@ -90,8 +90,15 @@ describe("lexer", () => {
     });
 
     describe('if-next-matches', () => {
-      generateTest('standard if-next-matches', '{=AEIOUaeiou}',
-        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'glueMetaCommand', 'verbatim'], 'Y.')
+      generateTest('standard if-next-matches', '{=[AEIOUaeiou]/an/a}',
+        fastDive(['output', 'atom', 'metaCommand', 'metaCommandType'], {
+          type: 'ifNextMatchesMetaCommand',
+          children: [
+            fastDiveText(['matchSection'], '[AEIOUaeiou]'),
+            fastDiveText(['matchSection'], 'an'),
+            fastDiveText(['matchSection'], 'a')
+          ]
+        })
       );
     });
 
