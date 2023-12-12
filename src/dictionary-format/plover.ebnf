@@ -37,9 +37,14 @@ singleKeyCombo ::= [^\ \}]*
 commaMetaCommand ::= "," | ":" | ";"
 stopMetaCommand ::= "." | "!" | "?"
 
-caseMetaCommand ::= retroCaseMetaCommand | simpleCaseMetaCommand
-retroCaseMetaCommand ::= "*" simpleCaseMetaCommand
-simpleCaseMetaCommand ::= "-|" | ">" | "<"
+caseMetaCommand ::= retroCase | capFirstWord | lowerFirstChar | upperFirstWord
+retroCase ::= "*" (capFirstWord | lowerFirstChar | upperFirstWord)
+/* Capitalizes the first letter of the next word. */
+capFirstWord ::= "-|"
+/* Forces the next letter to be lowercase */
+lowerFirstChar ::= ">"
+/* Outputs the next word in all capital letters */
+upperFirstWord ::= "<"
 
 wordEndMetaCommand ::= "$"
 
@@ -52,12 +57,11 @@ notLowerCLetter ::= [abd-zA-Z]
 
 glueMetaCommand ::= "&" verbatim*
 
-carryCapitalisationMetaCommand ::= attach "~|" verbatim* attach?
+carryCapitalisationMetaCommand ::= "^~|" verbatim* ("^")?
 
 attachMetaCommand ::= attachStart | attachEnd
-attachStart ::= attach attachVerbatim* attach?
-attachEnd ::= attachVerbatim attach
-attach ::= "^"
+attachStart ::= "^" attachVerbatim* ("^")?
+attachEnd ::= attachVerbatim "^"
 
 attachVerbatim ::= (escapeSequence | attachVerbatimSingle)+
 attachVerbatimSingle ::= [^\{\}\^]

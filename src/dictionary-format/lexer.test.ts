@@ -1,5 +1,5 @@
 import {describe } from '@jest/globals';
-import { fastDiveSimple, fastDiveText, generateTest } from './lexerTestHelpers';
+import { fastDive, fastDiveSimple, fastDiveText, generateTest } from './lexerTestHelpers';
 
 describe("lexer", () => {
   describe('simple text input', () => {
@@ -35,30 +35,104 @@ describe("lexer", () => {
   });
 
   describe('meta commands', () => {
-    generateTest('space between meta commands is ignored', '{.} {.}', {
-      type: 'output',
-      children: [
-        fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
-        fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand'])
-      ]
+    describe('casing', () => {
+      generateTest('basic cap first word', '{-|}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'capFirstWord'])
+      );
+
+      generateTest('basic cap first word', '{>}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'lowerFirstChar'])
+      );
+
+      generateTest('basic cap first word', '{<}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'upperFirstWord'])
+      );
+
+      describe('retro', () => {
+        generateTest('basic cap first word', '{*-|}',
+          fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'retroCase', 'capFirstWord'])
+        );
+
+        generateTest('basic cap first word', '{*>}',
+          fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'retroCase', 'lowerFirstChar'])
+        );
+
+        generateTest('basic cap first word', '{*<}',
+          fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'retroCase', 'upperFirstWord'])
+        );
+      });
     });
 
-    generateTest('multi meta commands with segments', '{.}{^ `}{-|}',{
-      type: 'output',
-      children: [
-        fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
-        fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart'], '^ `'),
-        fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand'], '-|')
-      ]
+    describe('gluing', () => {
+
     });
 
-    generateTest('multi meta commands with segments', '{.} `{-|}',{
-      type: 'output',
-      children: [
-        fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
-        fastDiveText(['atom', 'verbatim'], '`'),
-        fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand'], '-|')
-      ]
+    describe('if-next-matches', () => {
+
+    });
+
+    describe('legacy commands', () => {
+
+    });
+
+    describe('meta macros', () => {
+
+    });
+
+    describe('plover commands', () => {
+
+    });
+
+    describe('mode commands', () => {
+
+    });
+
+    describe('key combos', () => {
+
+    });
+
+    describe('comma', () => {
+
+    });
+
+    describe('stop', () => {
+
+    });
+
+    describe('word end', () => {
+
+    });
+
+    describe('retro currency', () => {
+
+    });
+
+    describe('spacing', () => {
+      generateTest('space between meta commands is ignored', '{.} {.}', {
+        type: 'output',
+        children: [
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand'])
+        ]
+      });
+
+      generateTest('multi meta commands with segments', '{.}{^ `}{-|}',{
+        type: 'output',
+        children: [
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart'], '^ `'),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand'], '-|')
+        ]
+      });
+
+      generateTest('multi meta commands with segments', '{.} `{-|}',{
+        type: 'output',
+        children: [
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
+          fastDiveText(['atom', 'verbatim'], '`'),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand'], '-|')
+        ]
+      });
     });
 
     describe('attach', () => {
@@ -91,6 +165,10 @@ describe("lexer", () => {
       generateTest('attach symbol that starts looking like a stop', '{.^}',
         fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachEnd'], '.^')
       );
+
+      describe('carry capitalisation', () => {
+
+      });
     });
 
     describe('combinations', () => {
@@ -104,7 +182,27 @@ describe("lexer", () => {
           fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'singleKeyCombo'], 'ALT_L(Grave)'),
           fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart'], '^ ^'),
         ]
-      })
+      });
+
+      generateTest('many different atoms, no spaces, glue and case', '{-|}{>}{&a}{>}{&b}', {
+        type: 'output',
+        children: [
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'capFirstWord']),
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'lowerFirstChar']),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'glueMetaCommand', 'verbatim'], 'a'),
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'lowerFirstChar']),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'glueMetaCommand', 'verbatim'], 'b'),
+        ]
+      });
+
+      generateTest('many different atoms, no spaces, glue and case', '{-|} equip {^s}', {
+        type: 'output',
+        children: [
+          fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'caseMetaCommand', 'capFirstWord']),
+          fastDiveText(['atom', 'verbatim'], 'equip'),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart', 'attachVerbatim'], 's')
+        ]
+      });
     });
   });
 });
