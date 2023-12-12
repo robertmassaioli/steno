@@ -166,7 +166,44 @@ describe("lexer", () => {
     });
 
     describe('plover commands', () => {
+      describe('no arg commands', () => {
+        const noArgCommands = ["suspend", "resume", "toggle", "add_translation", "lookup", "suggestions", "configure", "focus", "quit"];
 
+        for (let i = 0; i < noArgCommands.length; i++) {
+          const commandLower = noArgCommands[i];
+
+          generateTest(`one command parsed, no context`, `{PLOVER:${commandLower}}`,
+            fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'ploverMetaCommand', 'ploverCommandName'], commandLower),
+          );
+
+          const commandUpper = commandLower.toLocaleUpperCase();
+          generateTest('one command parsed, no context, capitalised', `{PLOVER:${commandUpper}}`,
+            fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'ploverMetaCommand', 'ploverCommandName'], commandUpper),
+          );
+        }
+      });
+
+      describe('set_config', () => {
+        generateTest(`simple`, '{PLOVER:set_config:"start_attached": True, "start_capitalized": True}',
+          fastDive(['output', 'atom', 'metaCommand', 'metaCommandType'], {
+            type: 'ploverMetaCommand',
+            children: [
+              fastDiveText(['ploverCommandName'], 'set_config'),
+              fastDiveText(['ploverMetaCommandArg'], '"start_attached": True, "start_capitalized": True'),
+            ]
+          })
+        );
+
+        generateTest(`simple, uppercase`, '{PLOVER:SET_CONFIG:"start_attached": True, "start_capitalized": True}',
+          fastDive(['output', 'atom', 'metaCommand', 'metaCommandType'], {
+            type: 'ploverMetaCommand',
+            children: [
+              fastDiveText(['ploverCommandName'], 'SET_CONFIG'),
+              fastDiveText(['ploverMetaCommandArg'], '"start_attached": True, "start_capitalized": True'),
+            ]
+          })
+        );
+      });
     });
 
     describe('mode commands', () => {

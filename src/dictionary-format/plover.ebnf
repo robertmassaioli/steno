@@ -21,9 +21,9 @@ macroMetaCommand ::= ":" macroMetaCommandName (":" macroMetaCommandArg)?
 macroMetaCommandName ::= [^:\}]+
 macroMetaCommandArg ::= ("\\}" | [^\}])+
 
-ploverMetaCommand ::= "PLOVER:" ploverMetaCommandName (":" ploverMetaCommandArg)?
-ploverMetaCommandName ::= letter (letter | "_" | "-")*
-ploverMetaCommandArg ::= (letter | digit | special)*
+ploverMetaCommand ::= "PLOVER:" ploverCommandName (":" ploverMetaCommandArg)?
+ploverCommandName ::= "suspend" | "resume" | "toggle" | "add_translation" | "lookup" | "suggestions" | "configure" | "focus" | "quit" | "set_config" | "SUSPEND" | "RESUME" | "TOGGLE" | "ADD_TRANSLATION" | "LOOKUP" | "SUGGESTIONS" | "CONFIGURE" | "FOCUS" | "QUIT" | "SET_CONFIG"
+ploverMetaCommandArg ::= ("\\}" | [^\}])+
 
 modeMetaCommand ::= "MODE:" outputMode
 outputMode ::= setSpaceOutputMode | simpleOutputMode
