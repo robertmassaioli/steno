@@ -62,9 +62,8 @@ attach ::= "^"
 attachVerbatim ::= (escapeSequence | attachVerbatimSingle)+
 attachVerbatimSingle ::= [^\{\}\^]
 
-verbatim ::= (escapableSingle escapableSingleWS* escapableSingle) | escapableSingle
-escapableSingleWS ::= escapeSequence | verbatimSingle | [\s]
-escapableSingle ::= escapeSequence | verbatimSingle
+verbatim ::= verbatimSegment ([\s]* verbatimSegment)*
+verbatimSegment ::= (escapeSequence | verbatimSingle)+
 verbatimSingle ::= [^\s\{\}]
 
 escapeSequence ::= backSlash escapableCharacter

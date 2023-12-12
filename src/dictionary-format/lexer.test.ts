@@ -2,9 +2,28 @@ import {describe } from '@jest/globals';
 import { fastDiveSimple, fastDiveText, generateTest } from './lexerTestHelpers';
 
 describe("lexer", () => {
+  describe('simple words', () => {
+    generateTest('single letter', 'a',
+      fastDiveText(['output', 'atom', 'verbatim', 'verbatimSegment', 'verbatimSingle'], 'a')
+    );
+
+    generateTest('standard word', 'test',
+      fastDiveText(['output', 'atom', 'verbatim'], 'test')
+    );
+
+    generateTest('middle spaces', 't e s t',
+      fastDiveText(['output', 'atom', 'verbatim'], 't e s t')
+    );
+  });
+
   describe('escape sequences', () => {
     generateTest('basic escape sequence', '\\{',
-      fastDiveText(['output', 'atom', 'verbatim', 'escapableSingle'], '\\{'));
+      fastDiveText(['output', 'atom', 'verbatim', 'verbatimSegment', 'escapeSequence'], '\\{')
+    );
+
+    generateTest('mid-text escape sequence', 'hel\\{lo',
+      fastDiveText(['output', 'atom', 'verbatim'], 'hel\\{lo')
+    );
   });
 
   describe('meta commands', () => {
