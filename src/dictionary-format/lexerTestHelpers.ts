@@ -71,9 +71,15 @@ export function generateTest(testName: string, input: string, expected: TokenMat
   describe(`${testName}: ${input}`, () => {
     const ast = toAST(input);
 
+    it('should not have any remainder', () => {
+      expect(ast?.errors || []).toHaveLength(0)
+      expect(ast?.rest || "").toHaveLength(0);
+    });
+
     if (isPresent(ast)) {
       const astString = toASTString(ast);
       console.log(`${testName} AST:\n\n${astString}`);
+
       it('should parse successfully', () => {
         assertParse(ast, input);
       });

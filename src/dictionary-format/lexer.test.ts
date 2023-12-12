@@ -24,6 +24,22 @@ describe("lexer", () => {
     );
   });
 
+  describe('macros', () => {
+    generateTest('named macro', '=macro_name',
+      fastDiveText(['output', 'macro', 'macroName'], 'macro_name')
+    );
+
+    generateTest('named macro, with argument', '=macro_name:arg_name',
+      fastDive(['output'], {
+        type: 'macro',
+        children: [
+          fastDiveText(['macroName'], 'macro_name'),
+          fastDiveText(['macroArgument'], 'arg_name'),
+        ]
+      })
+    );
+  });
+
   describe('escape sequences', () => {
     generateTest('basic escape sequence', '\\{',
       fastDiveText(['output', 'atom', 'verbatim', 'verbatimSegment', 'escapeSequence'], '\\{')
@@ -64,11 +80,19 @@ describe("lexer", () => {
     });
 
     describe('gluing', () => {
+      generateTest('glue a nunmber', '{&1}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'glueMetaCommand', 'verbatim'], '1')
+      );
 
+      generateTest('glue a nunmber', '{&Y.}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'glueMetaCommand', 'verbatim'], 'Y.')
+      );
     });
 
     describe('if-next-matches', () => {
-
+      generateTest('standard if-next-matches', '{=AEIOUaeiou}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'glueMetaCommand', 'verbatim'], 'Y.')
+      );
     });
 
     describe('legacy commands', () => {

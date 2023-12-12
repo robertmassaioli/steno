@@ -3,7 +3,8 @@ atom ::= metaCommand | resetFormatting | verbatim
 
 macro ::= "=" macroName (":" macroArgument)?
 macroName ::= (letter | "_")+
-macroArgument ::= [.]*
+macroArgument ::= anyChar*
+anyChar	::=	#x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]	/* any Unicode character, excluding the surrogate blocks, FFFE, and FFFF. */
 
 resetFormatting ::= "{}"
 
@@ -49,7 +50,9 @@ upperFirstWord ::= "<"
 wordEndMetaCommand ::= "$"
 
 /* TODO Allow for better parsing of ifNextMatches: see conditional.py in plover source */
-ifNextMatchesMetaCommand ::= "=" (letter | digit | special)+
+/* {=regex/match_text/no_match_text} */
+ifNextMatchesMetaCommand ::= "=" matchSection
+matchSection ::= anyChar*
 
 retroCurrencyMetaCommand ::= "*(" retroCurrencyNotC "c" retroCurrencyNotC ")"
 retroCurrencyNotC ::= notLowerCLetter | digit | special
