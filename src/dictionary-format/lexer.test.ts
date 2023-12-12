@@ -103,7 +103,9 @@ describe("lexer", () => {
     });
 
     describe('legacy commands', () => {
-
+      generateTest('retro toggle asterix', '{*}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'legacyMetaCommand', 'retroToggleAsterisk'])
+      );
     });
 
     describe('meta macros', () => {
