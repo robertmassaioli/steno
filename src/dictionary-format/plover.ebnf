@@ -25,11 +25,10 @@ ploverMetaCommand ::= "PLOVER:" ploverCommandName (":" ploverMetaCommandArg)?
 ploverCommandName ::= "suspend" | "resume" | "toggle" | "add_translation" | "lookup" | "suggestions" | "configure" | "focus" | "quit" | "set_config" | "SUSPEND" | "RESUME" | "TOGGLE" | "ADD_TRANSLATION" | "LOOKUP" | "SUGGESTIONS" | "CONFIGURE" | "FOCUS" | "QUIT" | "SET_CONFIG"
 ploverMetaCommandArg ::= ("\\}" | [^\}])+
 
-modeMetaCommand ::= "MODE:" outputMode
-outputMode ::= setSpaceOutputMode | simpleOutputMode
+modeMetaCommand ::= "MODE:" (setSpaceOutputMode | simpleOutputMode)
 simpleOutputMode ::= "CAPS" | "SNAKE" | "CAMEL" | "LOWER" | "TITLE" | "CLEAR" | "RESET" | "caps" | "snake" | "camel" | "lower" | "title" | "clear" | "reset"
 setSpaceOutputMode ::= ("SET_SPACE" | "set_space") ":" setSpaceTo*
-setSpaceTo ::= letter | digit | special | space
+setSpaceTo ::= ("\\}" | [^\}])+
 
 keyComboMetaCommand ::= "#" (singleKeyCombo (" " singleKeyCombo)* )*
 /* TODO get better at parsing key combinations and actually understand them: https://plover.readthedocs.io/en/latest/translation_language.html#keyboard-shortcuts */

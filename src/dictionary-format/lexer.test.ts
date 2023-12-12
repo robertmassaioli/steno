@@ -207,7 +207,32 @@ describe("lexer", () => {
     });
 
     describe('mode commands', () => {
+      describe('no arg modes', () => {
+        const noArgModes = ["caps", "snake", "camel", "lower", "title", "clear", "reset"];
 
+        for (let i = 0; i < noArgModes.length; i++) {
+          const modeLower = noArgModes[i];
+
+          generateTest(`one command parsed, no context`, `{MODE:${modeLower}}`,
+            fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'modeMetaCommand', 'simpleOutputMode'], modeLower),
+          );
+
+          const modeUpper = modeLower.toLocaleUpperCase();
+          generateTest('one command parsed, no context, capitalised', `{MODE:${modeUpper}}`,
+            fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'modeMetaCommand', 'simpleOutputMode'], modeUpper),
+          );
+        }
+      });
+
+      describe('set_space', () => {
+        generateTest(`simple`, '{MODE:set_space:blah}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'modeMetaCommand', 'setSpaceOutputMode', 'setSpaceTo'], 'blah')
+        );
+
+        generateTest(`simple, uppercase`, '{MODE:SET_SPACE:blah}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'modeMetaCommand', 'setSpaceOutputMode', 'setSpaceTo'], 'blah')
+        );
+      });
     });
 
     describe('key combos', () => {
