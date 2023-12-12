@@ -18,8 +18,8 @@ retroInsertSpace ::= "*?"
 repeatLastStroke ::= "*+"
 
 macroMetaCommand ::= ":" macroMetaCommandName (":" macroMetaCommandArg)?
-macroMetaCommandName ::= letter (letter | digit | "_" | "-")*
-macroMetaCommandArg ::= (letter | digit | special)*
+macroMetaCommandName ::= [^:\}]+
+macroMetaCommandArg ::= ("\\}" | [^\}])+
 
 ploverMetaCommand ::= "PLOVER:" ploverMetaCommandName (":" ploverMetaCommandArg)?
 ploverMetaCommandName ::= letter (letter | "_" | "-")*

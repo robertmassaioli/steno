@@ -106,10 +106,63 @@ describe("lexer", () => {
       generateTest('retro toggle asterix', '{*}',
         fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'legacyMetaCommand', 'retroToggleAsterisk'])
       );
+
+      generateTest('retro delete space', '{*!}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'legacyMetaCommand', 'retroDeleteSpace'])
+      );
+
+      generateTest('retro insert space', '{*?}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'legacyMetaCommand', 'retroInsertSpace'])
+      );
+
+      generateTest('repeat last stroke', '{*+}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'legacyMetaCommand', 'repeatLastStroke'])
+      );
     });
 
     describe('meta macros', () => {
+      generateTest('solo meta macro, no argument', '{:my_macro}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'macroMetaCommand', 'macroMetaCommandName'], "my_macro")
+      );
 
+      generateTest('solo meta macro, no argument, with numbers', '{:my_macro_123}',
+      fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'macroMetaCommand', 'macroMetaCommandName'], "my_macro_123")
+      );
+
+      generateTest('solo meta macro, with argument', '{:my_macro:my_argument}',
+        fastDive(['output', 'atom', 'metaCommand', 'metaCommandType'], {
+          type: 'macroMetaCommand',
+          children: [
+            fastDiveText(['macroMetaCommandName'], 'my_macro'),
+            fastDiveText(['macroMetaCommandArg'], 'my_argument'),
+          ]
+        })
+      );
+
+      generateTest('solo meta macro, with argument, with escape', '{:my_macro:{my_argument\\}}',
+      fastDive(['output', 'atom', 'metaCommand', 'metaCommandType'], {
+        type: 'macroMetaCommand',
+        children: [
+          fastDiveText(['macroMetaCommandName'], 'my_macro'),
+          fastDiveText(['macroMetaCommandArg'], '{my_argument\\}'),
+        ]
+      })
+      );
+
+      generateTest('surrounded meta macro, with argument', 'some{:my_macro:my_argument}text', {
+        type: 'output',
+        children: [
+          fastDiveText(['atom', 'verbatim'], 'some'),
+          fastDive(['atom', 'metaCommand', 'metaCommandType'], {
+            type: 'macroMetaCommand',
+            children: [
+              fastDiveText(['macroMetaCommandName'], 'my_macro'),
+              fastDiveText(['macroMetaCommandArg'], 'my_argument'),
+            ]
+          }),
+          fastDiveText(['atom', 'verbatim'], 'text'),
+        ]
+      });
     });
 
     describe('plover commands', () => {
