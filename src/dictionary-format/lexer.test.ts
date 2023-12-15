@@ -1,5 +1,5 @@
 import {describe } from '@jest/globals';
-import { fastDive, fastDiveSimple, fastDiveText, generateTest } from './lexerTestHelpers';
+import { TokenMatch, fastDive, fastDiveSimple, fastDiveText, generateTest } from './lexerTestHelpers';
 
 describe("lexer", () => {
   describe('simple text input', () => {
@@ -236,19 +236,138 @@ describe("lexer", () => {
     });
 
     describe('key combos', () => {
+      describe('single key press', () => {
+        generateTest(`alphabetic key`, '{#p}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], 'p')
+        );
 
+        generateTest(`number key`, '{#4}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], '4')
+        );
+
+        generateTest(`function key`, '{#F10}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], 'F10')
+        );
+
+        generateTest(`accented letter`, '{#acute}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], 'acute')
+        );
+
+        generateTest(`arrow key`, '{#Down}',
+          fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], 'Down')
+        );
+      });
+
+      describe('special keys', () => {
+        const specialKeys = ['BackSpace', 'Up', 'Left', 'Right', 'Down'];
+
+        for (let i = 0; i < specialKeys.length; i++) {
+          const specialKey = specialKeys[i];
+
+          generateTest(`special key`, `{#${specialKey}}`,
+            fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], specialKey)
+          );
+
+        }
+      });
+
+      describe('modifiers', () => {
+        function modifierGroup(modifier: string, further: TokenMatch): TokenMatch {
+          return {
+            type: 'modifierGroup',
+            children: [
+              fastDiveText(['modifier'], modifier),
+              further
+            ]
+          }
+        }
+
+        generateTest(`nested simple key`, '{#Control_L(Up)}',
+          fastDive(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'],
+            modifierGroup('Control_L',
+              fastDiveText(['keyCombos', 'singleKeyCombo'], 'Up')
+            )
+          )
+        );
+
+        generateTest(`nested two deep`, '{#super(shift(x))}',
+          fastDive(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos', 'singleKeyCombo'], {
+            type: 'modifierGroup',
+            children: [
+              fastDiveText(['modifier'], 'super'),
+              fastDive(['keyCombos', 'singleKeyCombo'], {
+                type: 'modifierGroup',
+                children: [
+                  fastDiveText(['modifier'], 'shift'),
+                  fastDiveText(['keyCombos', 'singleKeyCombo'], 'x')
+                ]
+              })
+            ]
+          })
+        );
+
+        generateTest(`multi keys`, '{#f super(g shift(x p))}',
+          fastDive(['output', 'atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand'], {
+            type: "keyCombos",
+            children: [
+              fastDiveText(['singleKeyCombo'], 'f'),
+              fastDive(['singleKeyCombo'],
+                modifierGroup('super', {
+                  type: 'keyCombos',
+                  children: [
+                    fastDiveText(['singleKeyCombo'], 'g'),
+                    fastDive(['singleKeyCombo'],
+                      modifierGroup('shift', {
+                        type: 'keyCombos',
+                        children: [
+                          fastDiveText(['singleKeyCombo'], 'x'),
+                          fastDiveText(['singleKeyCombo'], 'p')
+                        ]
+                      })
+                    )
+                  ]
+                })
+              )
+            ]
+
+          })
+        );
+      });
     });
 
-    describe('comma', () => {
+    describe('comma meta', () => {
+      generateTest(`comma`, '{,}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'commaMetaCommand'], ',')
+      );
 
+      generateTest(`colon`, '{:}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'commaMetaCommand'], ':')
+      );
+
+      generateTest(`semi-colon`, '{;}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'commaMetaCommand'], ';')
+      );
     });
 
-    describe('stop', () => {
+    describe('stop meta', () => {
+      generateTest(`period`, '{.}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand'], '.')
+      );
+
+      generateTest(`exclamation mark`, '{!}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand'], '!')
+      );
+
+      generateTest(`question mark`, '{?}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand'], '?')
+      );
 
     });
 
     describe('word end', () => {
-
+      generateTest(`period`, '{$}',
+        fastDiveSimple(['output', 'atom', 'metaCommand', 'metaCommandType', 'wordEndMetaCommand'])
+      );
     });
 
     describe('retro currency', () => {
