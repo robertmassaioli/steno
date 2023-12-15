@@ -320,14 +320,14 @@ describe("lexer", () => {
     });
 
     describe('combinations', () => {
-      generateTest('many different atoms, separated by spaces', '{^} {.} hello {.} {#Alt_L(grave)}{^ ^}', {
+      generateTest('many different atoms, separated by spaces', '{^} {.} hello {.} {#ALT_L(Grave)}{^ ^}', {
         type: 'output',
         children: [
           fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart']),
           fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
           fastDiveText(['atom', 'verbatim'], 'hello'),
           fastDiveSimple(['atom', 'metaCommand', 'metaCommandType', 'stopMetaCommand']),
-          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos'], 'Alt_L(grave)'),
+          fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'keyComboMetaCommand', 'keyCombos'], 'ALT_L(Grave)'),
           fastDiveText(['atom', 'metaCommand', 'metaCommandType', 'attachMetaCommand', 'attachStart'], '^ ^'),
         ]
       });
