@@ -9,7 +9,7 @@ anyChar	::=	#x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFF
 resetFormatting ::= "{}"
 
 metaCommand ::= "{" metaCommandType "}"
-metaCommandType ::= attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | legacyMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | carryCapitalisationMetaCommand
+metaCommandType ::= attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | legacyMetaCommand | carryCapitalisationMetaCommand
 
 legacyMetaCommand ::= retroDeleteSpace | retroInsertSpace | repeatLastStroke | retroToggleAsterisk
 retroToggleAsterisk ::= "*"
@@ -57,9 +57,9 @@ wordEndMetaCommand ::= "$"
 ifNextMatchesMetaCommand ::= "=" matchSection "/" matchSection "/" matchSection
 matchSection ::= (#x5C (#x5C | #x2F) | [^/\{\}\\])*
 
-retroCurrencyMetaCommand ::= "*(" retroCurrencyNotC "c" retroCurrencyNotC ")"
-retroCurrencyNotC ::= notLowerCLetter | digit | special
-notLowerCLetter ::= [abd-zA-Z]
+retroCurrencyMetaCommand ::= "*(" retroCurrencyStart "c" retroCurrencyEnd* ")"
+retroCurrencyStart ::= [^c\)\}\{]
+retroCurrencyEnd ::= [^\)\}\{]
 
 glueMetaCommand ::= "&" verbatim*
 

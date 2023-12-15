@@ -371,7 +371,9 @@ describe("lexer", () => {
     });
 
     describe('retro currency', () => {
-
+      generateTest(`period`, '{*($c)}',
+        fastDiveText(['output', 'atom', 'metaCommand', 'metaCommandType', 'retroCurrencyMetaCommand', 'retroCurrencyStart'], '$')
+      );
     });
 
     describe('spacing', () => {
