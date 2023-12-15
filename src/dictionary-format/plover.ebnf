@@ -30,9 +30,14 @@ simpleOutputMode ::= "CAPS" | "SNAKE" | "CAMEL" | "LOWER" | "TITLE" | "CLEAR" | 
 setSpaceOutputMode ::= ("SET_SPACE" | "set_space") ":" setSpaceTo*
 setSpaceTo ::= ("\\}" | [^\}])+
 
-keyComboMetaCommand ::= "#" (singleKeyCombo (" " singleKeyCombo)* )*
+keyComboMetaCommand ::= "#" keyCombos*
 /* TODO get better at parsing key combinations and actually understand them: https://plover.readthedocs.io/en/latest/translation_language.html#keyboard-shortcuts */
-singleKeyCombo ::= [^\ \}]*
+keyCombos ::= singleKeyCombo (" "+ singleKeyCombo)*
+singleKeyCombo ::= modifierGroup | accentedLetter | [a-z0-9]
+modifierGroup ::= modifier "(" keyCombos* ")"
+/* TODO these are all actually case insensitive */
+modifier ::= ("Shift_" [LR]) | "shift" | ("Control_" [LR]) | "control" | ("Alt_" [LR]) | "alt" | ("Super_" [LR]) | "super" | "windows" | "command"
+accentedLetter ::= "aacute" | "acircumflex" | "acute" | "adiaeresis" | "ae" | "agrave" | "ampersand" | "apostrophe" | "aring" | "asciicircum" | "asciitilde" | "asterisk" | "at" | "atilde" | "backslash" | "bar" | "braceleft" | "braceright" | "bracketleft" | "bracketright" | "brokenbar" | "ccedilla" | "cedilla" | "cent" | "clear" | "colon" | "comma" | "copyright" | "currency" | "degree" | "diaeresis" | "division" | "dollar" | "eacute" | "ecircumflex" | "ediaeresis" | "egrave" | "equal" | "eth" | "exclam" | "exclamdown" | "grave" | "greater" | "guillemotleft" | "guillemotright" | "hyphen" | "iacute" | "icircumflex" | "idiaeresis" | "igrave" | "less" | "macron" | "masculine" | "minus" | "mu" | "multiply" | "nobreakspace" | "notsign" | "ntilde" | "numbersign" | "oacute" | "ocircumflex" | "odiaeresis" | "ograve" | "onehalf" | "onequarter" | "onesuperior" | "ooblique" | "ordfeminine" | "oslash" | "otilde" | "paragraph" | "parenleft" | "parenright" | "percent" | "period" | "periodcentered" | "plus" | "plusminus" | "question" | "questiondown" | "quotedbl" | "quoteleft" | "quoteright" | "registered" | "return" | "section" | "semicolon" | "slash" | "space" | "ssharp" | "sterling" | "tab" | "thorn" | "threequarters" | "threesuperior" | "twosuperior" | "uacute" | "ucircumflex" | "udiaeresis" | "ugrave" | "underscore" | "yacute" | "ydiaeresis" | "yen"
 
 commaMetaCommand ::= "," | ":" | ";"
 stopMetaCommand ::= "." | "!" | "?"
