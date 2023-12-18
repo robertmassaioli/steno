@@ -1,4 +1,4 @@
-output ::= macro | ([\s]* atom [\s]*)+
+outline ::= macro | ([\s]* atom [\s]*)+
 atom ::= metaCommand | resetFormatting | verbatim
 
 macro ::= "=" macroName (":" macroArgument)?
@@ -8,8 +8,7 @@ anyChar	::=	#x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFF
 
 resetFormatting ::= "{}"
 
-metaCommand ::= "{" metaCommandType "}"
-metaCommandType ::= attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | legacyMetaCommand | carryCapitalisationMetaCommand
+metaCommand ::= "{" (attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | legacyMetaCommand | carryCapitalisationMetaCommand) "}"
 
 legacyMetaCommand ::= retroDeleteSpace | retroInsertSpace | repeatLastStroke | retroToggleAsterisk
 retroToggleAsterisk ::= "*"

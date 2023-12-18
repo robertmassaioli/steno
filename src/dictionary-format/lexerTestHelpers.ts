@@ -9,7 +9,7 @@ export function assertParse(ast: IToken, input: string) {
 }
 
 export function toAST(input: string): IToken | null {
-  return getParser().getAST(input, 'output');
+  return getParser().getAST(input, 'outline');
 }
 
 export type TokenMatch = {

@@ -119,7 +119,7 @@ function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
   // How many characters are output
   const dictionaryOutputParser = getParser();
   Object.entries(dictionary).forEach(([stenoKeys, output]) => {
-    const ast = dictionaryOutputParser.getAST(output, 'output');
+    const ast = dictionaryOutputParser.getAST(output, 'outline');
     if (ast !== null && ast.text.length === output.length) {
       calculateOutputCharacters(ast);
     } else {
@@ -137,9 +137,11 @@ function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
 }
 
 function calculateOutputCharacters(ast: IToken): number {
-  if (ast.type !== 'output') {
+  if (ast.type !== 'outline') {
     throw new Error(`Expected AST type was output but got ${ast.type}`);
   }
+
+  // Calculate the length of each atom and then add them all together
 
   printAST(ast);
   // const segments = ast.children;
