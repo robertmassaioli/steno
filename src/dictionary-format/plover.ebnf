@@ -60,12 +60,12 @@ retroCurrencyMetaCommand ::= "*(" retroCurrencyStart "c" retroCurrencyEnd* ")"
 retroCurrencyStart ::= [^c\)\}\{]
 retroCurrencyEnd ::= [^\)\}\{]
 
-glueMetaCommand ::= "&" verbatim*
+glueMetaCommand ::= "&" verbatim
 
 carryCapitalisationMetaCommand ::= "^~|" verbatim* ("^")?
 
 attachMetaCommand ::= attachStart | attachEnd
-attachStart ::= "^" attachVerbatim* ("^")?
+attachStart ::= "^" attachVerbatim? ("^")?
 attachEnd ::= attachVerbatim "^"
 
 attachVerbatim ::= (escapeSequence | attachVerbatimSingle)+

@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.202",
     "@types/node": "^20.8.5",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
@@ -23,6 +24,7 @@
     "ebnf": "^1.9.1",
     "fs-extra": "^11.1.1",
     "ini": "^4.1.1",
+    "lodash": "^4.17.21",
     "ts-is-present": "^1.2.2"
   }
 }

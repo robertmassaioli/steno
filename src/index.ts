@@ -8,6 +8,9 @@ import { DictionaryConfig, DictionaryStats, LoadedDictionary, PloverConfig, Sten
 import { getParser, printAST } from './dictionary-format/lexer';
 import { IToken } from 'ebnf';
 import { formatCharacters, toHexadecimal } from './hexadecimal';
+import { calculateLength, isCalculationError } from './outline-length';
+import { isPresent } from 'ts-is-present';
+import _ from 'lodash';
 
 enum ErrorCodes {
   StenoConfigValidationError = 1,
@@ -98,7 +101,11 @@ program
       console.log(`   - Entries by Stroke Count:`);
       Object.keys(stats.entriesByStrokeCount).sort((a, b) => parseInt(a) - parseInt(b)).forEach(strokes => {
         console.log(`     - ${strokes}: ${stats.entriesByStrokeCount[parseInt(strokes)]} entries`);
-      })
+      });
+      console.log(`   - Characters per stroke:`);
+      Object.keys(stats.charactersPerStroke).sort((a, b) => parseInt(a) - parseInt(b)).forEach(characters => {
+        console.log(`     - ${characters} characters => ${stats.charactersPerStroke[parseInt(characters)].toFixed(2)} strokes`);
+      });
     });
 
   });
@@ -117,11 +124,25 @@ function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
   });
 
   // How many characters are output
+  const charactersPerStrokeAgg: { [characters: number]: Array<number> } = {};
   const dictionaryOutputParser = getParser();
   Object.entries(dictionary).forEach(([stenoKeys, output]) => {
     const ast = dictionaryOutputParser.getAST(output, 'outline');
     if (ast !== null && ast.text.length === output.length) {
-      calculateOutputCharacters(ast);
+      const strokes = stenoKeys.split('/').length;
+      const estLength = calculateLength(ast);
+      if (isCalculationError(estLength)) {
+        console.log(`AST: ${ast === null ? 'null' : ast.text}`);
+        console.error(`Could not calculate the output length for '${stenoKeys}' in ${d.config.path}: '${output}' (${formatCharacters(output)})`);
+        console.error(estLength.errorMessages.join('\n'));
+      } else {
+        // console.log(estLength);
+        if (!isPresent(charactersPerStrokeAgg[estLength])) {
+          charactersPerStrokeAgg[estLength] = [strokes];
+        } else {
+          charactersPerStrokeAgg[estLength].push(strokes);
+        }
+      }
     } else {
       console.log(`AST: ${ast === null ? 'null' : ast.text}`);
       console.error(`Could not parse output or did not parse full output for '${stenoKeys}' in ${d.config.path}: '${output}' (${formatCharacters(output)})`);
@@ -129,10 +150,15 @@ function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
     }
   });
 
+  const charactersPerStroke = _.mapValues(charactersPerStrokeAgg, vs => _.sum(vs) / vs.length);
+
+  console.log(JSON.stringify(charactersPerStroke, null, 2));
+
   return {
     definedEntries: allKeys.length,
     uniqueWordCount: uniqueWords.size,
-    entriesByStrokeCount
+    entriesByStrokeCount,
+    charactersPerStroke
   }
 }
 

@@ -35,4 +35,7 @@ export type DictionaryStats = {
   definedEntries: number;
   uniqueWordCount: number;
   entriesByStrokeCount: { [strokes: number]: number };
+  // I want to have an approximation of the stroke intensity for output gained for true wpm
+  // The value should be the average number of strokes required to get that many characters
+  charactersPerStroke: { [characters: number]: number };
 }
