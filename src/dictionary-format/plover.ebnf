@@ -35,7 +35,7 @@ keyCombos ::= singleKeyCombo (" "+ singleKeyCombo)*
 singleKeyCombo ::= modifierGroup | [a-zA-Z0-9_]+
 modifierGroup ::= modifier "(" keyCombos* ")"
 /* TODO these are all actually case insensitive */
-modifier ::= (("Shift" | "SHIFT") "_" [LR]) | "shift" | (("Control" | "CONTROL") "_" [LR]) | "control" | (("Alt" | "ALT") "_" [LR]) | "alt" | (("Super" | "SUPER") "_" [LR]) | "super" | "windows" | "command"
+modifier ::= (("Shift" | "SHIFT") "_" [LR]) | "shift" | ("S" ("hift" | "HIFT")) | (("Control" | "CONTROL") "_" [LR]) | "control" | ("C" ("ontrol" | "ONTROL")) | (("Alt" | "ALT") "_" [LR]) | "alt" | ("A" ("lt" | "LT")) | (("Super" | "SUPER") "_" [LR]) | "super" | ("S" ("uper" | "UPER")) | "windows" | ("W" | ("indows" | "INDOWS")) | "command" | ("C" ("ommand" | "OMMAND"))
 
 commaMetaCommand ::= "," | ":" | ";"
 stopMetaCommand ::= "." | "!" | "?"

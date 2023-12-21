@@ -1,3 +1,11 @@
+import { IToken } from "ebnf";
+
+export enum ErrorCodes {
+  StenoConfigValidationError = 1,
+  PloverConfigPathError,
+  PloverConfigReadError,
+};
+
 export type StenoConfig = {
   ploverAssetsDir: string;
 };
@@ -26,6 +34,10 @@ export type StenoDictionary = {
   [strokes: string]: string;
 };
 
+export type ParsedStenoDictionary = {
+  [strokes: string]: IToken;
+};
+
 export type LoadedDictionary = {
   config: DictionaryConfig;
   dictionary: StenoDictionary;
@@ -37,5 +49,5 @@ export type DictionaryStats = {
   entriesByStrokeCount: { [strokes: number]: number };
   // I want to have an approximation of the stroke intensity for output gained for true wpm
   // The value should be the average number of strokes required to get that many characters
-  charactersPerStroke: { [characters: number]: number };
+  charactersPerStroke: { [characters: number]: Array<number> };
 }

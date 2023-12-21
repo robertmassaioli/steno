@@ -1,15 +1,11 @@
 import {describe, expect, it } from '@jest/globals';
-import { getParser, printAST, toASTString } from './lexer';
+import { getParser, toAST, toASTString } from './lexer';
 import { IToken } from 'ebnf';
 import { isPresent } from 'ts-is-present';
 
 export function assertParse(ast: IToken, input: string) {
   expect(ast).toBeDefined();
   expect(ast.text).toEqual(input);
-}
-
-export function toAST(input: string): IToken | null {
-  return getParser().getAST(input, 'outline');
 }
 
 export type TokenMatch = {
@@ -69,7 +65,7 @@ function expectTokenMatchHelper({e, a, currentPath}: TokenMatchState) {
 
 export function generateTest(testName: string, input: string, expected: TokenMatch): void {
   describe(`${testName}: ${input}`, () => {
-    const ast = toAST(input);
+    const ast = toAST(getParser(), input);
 
     it('should not have any remainder', () => {
       expect(ast?.errors || []).toHaveLength(0)
