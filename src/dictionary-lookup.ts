@@ -14,11 +14,11 @@ export class DictionaryLookup {
     this.dictionary = _.pickBy(_.mapValues(dictionary, v => parser.getAST(v, 'outline')), isPresent);
 
     this.suffixStrokes = _.pickBy(this.dictionary, ast => {
-      return astIs(ast, ['outline', 'metaCommand', 'attachMetaCommand', 'attachStart']);
+      return isPresent(ast) && astIs(ast, ['outline', 'atom', 'metaCommand', 'attachMetaCommand', 'attachStart']);
     });
 
     this.prefixStrokes = _.pickBy(this.dictionary, ast => {
-      return astIs(ast, ['outline', 'metaCommand', 'attachMetaCommand', 'attachEnd']);
+      return isPresent(ast) && astIs(ast, ['outline', 'atom', 'metaCommand', 'attachMetaCommand', 'attachEnd']);
     });
   }
 
@@ -28,5 +28,9 @@ export class DictionaryLookup {
 
   public getSuffixStrokes() {
     return this.suffixStrokes;
+  }
+
+  public getParsedDictionary() {
+    return this.dictionary;
   }
 }

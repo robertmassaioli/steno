@@ -8,7 +8,7 @@ anyChar	::=	#x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFF
 
 resetFormatting ::= "{}"
 
-metaCommand ::= "{" (attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | legacyMetaCommand | carryCapitalisationMetaCommand) "}"
+metaCommand ::= "{" (carryCapitalisationMetaCommand | attachMetaCommand | caseMetaCommand | glueMetaCommand | ifNextMatchesMetaCommand | macroMetaCommand | ploverMetaCommand | modeMetaCommand | keyComboMetaCommand | commaMetaCommand | stopMetaCommand | wordEndMetaCommand | retroCurrencyMetaCommand | legacyMetaCommand) "}"
 
 legacyMetaCommand ::= retroDeleteSpace | retroInsertSpace | repeatLastStroke | retroToggleAsterisk
 retroToggleAsterisk ::= "*"
@@ -62,7 +62,7 @@ retroCurrencyEnd ::= [^\)\}\{]
 
 glueMetaCommand ::= "&" verbatim
 
-carryCapitalisationMetaCommand ::= "^~|" verbatim* ("^")?
+carryCapitalisationMetaCommand ::= ("^")? "~|" verbatim* ("^")?
 
 attachMetaCommand ::= attachStart | attachEnd
 attachStart ::= "^" attachVerbatim? ("^")?

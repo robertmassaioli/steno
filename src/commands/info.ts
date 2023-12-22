@@ -6,6 +6,20 @@ import { DictionaryStats, LoadedDictionary } from "../data";
 import { loadDictionaries } from "../loaders";
 import { formatCharacters } from "../hexadecimal";
 import _ from 'lodash';
+import { DictionaryLookup } from "../dictionary-lookup";
+import { IToken } from "ebnf";
+
+function astCompator(a: IToken | null, b: IToken | null): number {
+  if (a === null) {
+    return -1;
+  }
+
+  if (b === null) {
+    return -1;
+  }
+
+  return a.text.localeCompare(b.text);
+}
 
 export async function runInfoCommand() {
   const stenoConfig = await getStenoConfigOrPrintErrors();
@@ -29,7 +43,8 @@ export async function runInfoCommand() {
   console.log();
   loadedDictionaries.forEach(d => {
     console.log(` - ${d.config.path}`);
-    const stats = calculateDictionaryStats(d);
+    const dictionaryLookup = new DictionaryLookup(d.dictionary);
+    const stats = calculateDictionaryStats(dictionaryLookup, d);
     const uniqueToTotal = stats.uniqueWordCount / stats.definedEntries * 100;
     console.log(`   - Unique Entries: ${stats.uniqueWordCount} / ${stats.definedEntries} (${uniqueToTotal.toFixed(2)}%)`);
     console.log(`   - Entries by Stroke Count:`);
@@ -37,11 +52,27 @@ export async function runInfoCommand() {
       console.log(`     - ${strokes}: ${stats.entriesByStrokeCount[parseInt(strokes)]} entries`);
     });
     console.log(`   - Characters per stroke:`);
-
-
     const averages = _.mapValues(stats.charactersPerStroke, vs => _.sum(vs) / vs.length);
     Object.keys(averages).sort((a, b) => parseInt(a) - parseInt(b)).forEach(characters => {
       console.log(`     - ${characters} characters => ${averages[parseInt(characters)].toFixed(2)} strokes (ave)`);
+    });
+    const prefixStrokes = dictionaryLookup.getPrefixStrokes();
+    console.log(`   - Found ${Object.keys(prefixStrokes).length} prefix strokes.`);
+    Object.entries(prefixStrokes).sort(([_aKey, aToken], [_bKey, bToken]) => {
+      return astCompator(aToken, bToken);
+    }).forEach(([key, ast]) => {
+      if (isPresent(ast)) {
+        console.log(`     - ${ast.text} (${key})`);
+      }
+    });
+    const suffixStrokes = dictionaryLookup.getSuffixStrokes();
+    console.log(`   - Found ${Object.keys(suffixStrokes).length} suffix strokes.`);
+    Object.entries(suffixStrokes).sort(([_aKey, aToken], [_bKey, bToken]) => {
+      return astCompator(aToken, bToken);
+    }).forEach(([key, ast]) => {
+      if (isPresent(ast)) {
+        console.log(`     - ${ast.text} (${key})`);
+      }
     });
     // TODO Calculate average characters per stroke for the whole dictionary,
     // also need to keep track of how many entries went into the average so that we
@@ -49,7 +80,7 @@ export async function runInfoCommand() {
   });
 }
 
-function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
+function calculateDictionaryStats(dictionaryLookup: DictionaryLookup, d: LoadedDictionary): DictionaryStats {
   const { dictionary } = d;
 
   const allOutputs = Object.values(dictionary);
@@ -64,15 +95,13 @@ function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
 
   // How many characters are output
   const charactersPerStroke: { [characters: number]: Array<number> } = {};
-  const dictionaryOutputParser = getParser();
-  Object.entries(dictionary).forEach(([stenoKeys, output]) => {
-    const ast = dictionaryOutputParser.getAST(output, 'outline');
-    if (ast !== null && ast.text.length === output.length) {
+  Object.entries(dictionaryLookup.getParsedDictionary()).forEach(([stenoKeys, ast]) => {
+    if (ast !== null && ast.errors.length === 0) {
       const strokes = stenoKeys.split('/').length;
       const estLength = calculateLength(ast);
       if (isCalculationError(estLength)) {
         console.log(`AST: ${ast === null ? 'null' : ast.text}`);
-        console.error(`Could not calculate the output length for '${stenoKeys}' in ${d.config.path}: '${output}' (${formatCharacters(output)})`);
+        console.error(`Could not calculate the output length for '${stenoKeys}' in ${d.config.path}: '${ast.text}' (${formatCharacters(ast.text)})`);
         console.error(estLength.errorMessages.join('\n'));
       } else {
         // console.log(estLength);
@@ -83,9 +112,12 @@ function calculateDictionaryStats(d: LoadedDictionary): DictionaryStats {
         }
       }
     } else {
-      console.log(`AST: ${ast === null ? 'null' : ast.text}`);
-      console.error(`Could not parse output or did not parse full output for '${stenoKeys}' in ${d.config.path}: '${output}' (${formatCharacters(output)})`);
-      // process.exit(1);
+      // TODO have a debug or verbose flag
+      // console.log(`AST: ${ast === null ? 'null' : ast.text}`);
+      // console.error(`Could not parse output or did not parse full output for '${stenoKeys}' in ${d.config.path}: '${dictionary[stenoKeys]}' (${formatCharacters(dictionary[stenoKeys])})`);
+      // if (isPresent(ast) && isPresent(ast.errors) && ast.errors.length > 0) {
+      //   console.error(`Ast Errors: ${JSON.stringify(ast.errors.map(e => e.message))}`);
+      // }
     }
   });
 

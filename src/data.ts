@@ -35,7 +35,7 @@ export type StenoDictionary = {
 };
 
 export type ParsedStenoDictionary = {
-  [strokes: string]: IToken;
+  [strokes: string]: IToken | null;
 };
 
 export type LoadedDictionary = {
