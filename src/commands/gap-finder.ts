@@ -1,3 +1,4 @@
+import { DictionaryLookup } from "../dictionary-lookup";
 import { getStenoConfigOrPrintErrors, mergeDictionaries, readPloverConfigOrPrintErrors } from "./command-common";
 import _ from 'lodash';
 
@@ -11,9 +12,9 @@ export async function runGapFinderCommand() {
   // Output the commands, selected from the dictionary, that would match that output. This could
   // be a separate command.
 
-  const dictionaryTranslations = new Set(_.values(mergedDictionary).map(w => w.toLocaleLowerCase()));
+  const dl = new DictionaryLookup(mergedDictionary);
   (await popular10kPromise).forEach((word, popularity) => {
-    if (word.length > 1 && !dictionaryTranslations.has(word.toLocaleLowerCase())) {
+    if (dl.lookupStrokesForWord(word).length === 0) {
       console.log(`${popularity + 1}: Dictionary does not contain '${word}'`)
     }
   });
