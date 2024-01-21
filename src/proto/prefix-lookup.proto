@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message SegmentMatch {
+  required string stroke = 1;
+  required string fullText = 2;
+}
+
+message SegmentLookup {
+  repeated SegmentMatch matches = 1;
+}

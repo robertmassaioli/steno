@@ -1,4 +1,5 @@
 import { DictionaryLookup } from "../dictionary-lookup";
+import { createPrefixLookupFS } from "../lookup";
 import { getStenoConfigOrPrintErrors, mergeDictionaries, readPloverConfigOrPrintErrors } from "./command-common";
 import _ from 'lodash';
 
@@ -8,6 +9,7 @@ export async function runGapFinderCommand() {
   const stenoConfig = await getStenoConfigOrPrintErrors();
   const ploverConfig = await readPloverConfigOrPrintErrors(stenoConfig);
   const mergedDictionary = await mergeDictionaries(stenoConfig, ploverConfig.dictionaries);
+
   // Given an input SPM, output the expected SPM if the input dictionary was used most efficiently
   // Output the commands, selected from the dictionary, that would match that output. This could
   // be a separate command.

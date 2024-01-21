@@ -1,8 +1,9 @@
 import { isPresent } from "ts-is-present";
 import { ParsedStenoDictionary, StenoDictionary } from "./data";
-import { astIs, getParser } from "./dictionary-format/lexer";
+import { astIs, getParser, getTextAt } from "./dictionary-format/lexer";
 import _ from 'lodash';
-import { InvertedLookup, createLookup } from "./lookup";
+import { InvertedLookup, PrefixLookup, createLookup, createPrefixLookupFS } from "./lookup";
+import { makeCandidatesFromRules } from "./orthography";
 
 export class DictionaryLookup {
   private dictionary: ParsedStenoDictionary;
@@ -15,7 +16,15 @@ export class DictionaryLookup {
 
     this.dictionary = _.pickBy(_.mapValues(dictionary, v => parser.getAST(v, 'outline')), isPresent);
 
-    this.verbatimLookup = createLookup(_.mapValues(this.dictionary, v => isPresent(v) ? v.text.toLocaleLowerCase() : ''));
+    const lowerVertatimEntries = _.reduce<ParsedStenoDictionary, StenoDictionary>(this.dictionary, (result, v, k) => {
+      if (isPresent(v) && astIs(v, ['outline', 'atom', 'verbatim'])) {
+        result[k] = v.text.toLocaleLowerCase();
+      }
+
+      return result;
+    }, {});
+    console.log('verbatim entries', Object.keys(lowerVertatimEntries).length);
+    this.verbatimLookup = createLookup(lowerVertatimEntries);
 
     this.suffixStrokes = _.pickBy(this.dictionary, ast => {
       return isPresent(ast) && astIs(ast, ['outline', 'atom', 'metaCommand', 'attachMetaCommand', 'attachStart']);
@@ -52,7 +61,55 @@ export class DictionaryLookup {
       return this.verbatimLookup[lowerText];
     }
 
+    /*
+    // Using the prefix and suffix strokes, and the orthography rules,
+    // see if I can get it working
+    const startWords = this.prefixLookup[lowerText];
+    if (startWords.length > 0) {
+      // Should use the start words to generate the candidates
+      const suffixCandidates = _.mapValues(this.suffixStrokes, token => {
+        if (isPresent(token)) {
+          const suffixText = getTextAt(token, ['outline', 'atom', 'metaCommand', 'attachMetaCommand', 'attachStart']);
+          if (!isPresent(suffixText)) {
+            return null;
+          }
+          return startWords.map(match => {
+            return {
+              match,
+              candidates: makeCandidatesFromRules(match.fullText, suffixText)
+            };
+          })
+        }
+
+        return token;
+      });
+
+      function getMatchingCandidates(): Array<string> {
+        const results = new Array<string>();
+
+        Object.entries(suffixCandidates).forEach(([stroke, started]) => {
+          if (!isPresent(started)) {
+            return false;
+          }
+
+          started.forEach(start => {
+            if (start.candidates.find(c => c === lowerText)) {
+              results.push(`${start.match.stroke}/${stroke}`);
+            }
+          });
+        });
+
+        return results;
+      }
+
+      const matching = getMatchingCandidates();
+      if (matching.length > 0) {
+        return matching;
+      }
+    }
+
     // Found no results
+    */
     return [];
   }
 }

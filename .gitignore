@@ -1,2 +1,4 @@
 /node_modules
 /dictionary.merged.json
+/.prefix-lookup
+/.steno-generated

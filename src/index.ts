@@ -3,6 +3,12 @@ import { program } from 'commander';
 import { runInfoCommand } from './commands/info';
 import { runBuildCommand } from './commands/build';
 import { runGapFinderCommand } from './commands/gap-finder';
+import { runPrepareCommand } from './commands/prepare';
+
+program
+  .command('prepare')
+  .description('Prepare all of the generated files that we will need to run more advanced commands.')
+  .action(runPrepareCommand);
 
 program
   .command('build')

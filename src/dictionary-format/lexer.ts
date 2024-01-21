@@ -56,3 +56,18 @@ export function astIs(ast: IToken, tree: Array<string>): boolean {
 
   return true;
 }
+
+export function getTextAt(ast: IToken, tree: Array<string>): string | undefined {
+  while (tree.length > 0) {
+    const current = _.head(tree);
+
+    if (current !== ast.type || ast.children.length !== 1) {
+      return undefined;
+    }
+
+    ast = ast.children[0];
+    tree = _.tail(tree);
+  }
+
+  return ast.text;
+}
