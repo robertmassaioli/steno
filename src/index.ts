@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-import { program } from 'commander';
+import { Argument, program } from 'commander';
 import { runInfoCommand } from './commands/info';
 import { runBuildCommand } from './commands/build';
 import { runGapFinderCommand } from './commands/gap-finder';
 import { runPrepareCommand } from './commands/prepare';
+import { runAnkiGeneration } from './commands/anki';
+import { runAutoCompleteCommand } from './commands/autocomplete';
 
 program
   .command('prepare')
@@ -45,6 +47,22 @@ program
   .description('Searches the most popular words in english and makes sure that your dictionary can generate these words.')
   .action(runGapFinderCommand);
 
+program
+  .command('anki')
+  .description('Generates an anki deck given your criteria.')
+  .option('-d, --dictionary <filename...>', 'Specify a dictionary, in order, to be used for the generation of this command.')
+  .option('-p, --popularity <top_n>', 'Specify that you only want the top N most popular words in the output. Must be <=10000.')
+  .action((options) => runAnkiGeneration(options));
+
+program
+  .command('autocomplete')
+  .description('Generates dictionaries that act as autocompletions of the input dictionaries')
+  .option('-d, --dictionary <filename...>', 'Specify one or more dictionaries to run this command over.')
+  .option('-m, --min-strokes', 'Specify the minimum number of strokes before autocompletion activates.', '2')
+  .option('-o, --output <filename>', 'Specify where you want the output to be written to.', 'autocomplete.json')
+  .action((options) => runAutoCompleteCommand(options));
+
 // Command that evaluates where the most popular word or phrase is not the one that got the asterix
 
+console.log(process.argv);
 program.parse(process.argv);
